@@ -92,10 +92,12 @@ def protected_coloring(coloring, teamset, otherteamset):
     for i in range(len(nc)):
         if isprotected(nc, i, teamset):
             nc[i] = teamset[2]
-        if isprotected(nc, i, otherteamset):
+        elif isprotected(nc, i, otherteamset):
             nc[i] = teamset[4]
-        if (nc[i] == teamset[4]) and not isprotected(nc, i, otherteamset):
+        elif nc[i] == teamset[4]:
             nc[i] = teamset[3]
+#        elif nc[i] == teamset[2]:
+#            nc[i] = teamset[1]
     return nc
 
 
