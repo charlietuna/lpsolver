@@ -87,17 +87,24 @@ def isprotected(coloring, move, teamset):
     return True
 
 
-def new_colors(coloring, moves, teamset, otherteamset):
+def protected_coloring(coloring, teamset, otherteamset):
+    nc = list(coloring)
+    for i in range(len(nc)):
+        if isprotected(nc, i, teamset):
+            nc[i] = teamset[2]
+        if isprotected(nc, i, otherteamset):
+            nc[i] = teamset[4]
+        if (nc[i] == teamset[4]) and not isprotected(nc, i, otherteamset):
+            nc[i] = teamset[3]
+    return nc
+
+
+def new_coloring(coloring, moves, teamset, otherteamset):
     nc = list(coloring)
     for move in moves:
         if nc[move] != teamset[4]:
             nc[move] = teamset[1]
-    for i in range(len(nc)):
-        if isprotected(nc, i, teamset):
-            nc[i] = teamset[2]
-        if (nc[i] == teamset[4]) and not isprotected(nc, i, otherteamset):
-            nc[i] = teamset[3]
-    return nc
+    return protected_coloring(nc, teamset, otherteamset)
 
 
 def differ(coloring, newcoloring, teamset):
@@ -124,7 +131,7 @@ def scorer(bhash, word, coloring, myteam, theirteam):
     maxmove = None
     maxcoloring = None
     for move in word_allmoves(bhash, word):
-        newcoloring = new_colors(coloring, move, myteam, theirteam)
+        newcoloring = new_coloring(coloring, move, myteam, theirteam)
         newscore = differ(coloring, newcoloring, myteam)
         if newscore > maxscore:
             maxmove = move
@@ -160,6 +167,7 @@ if __name__ == "__main__":
     coloring = sys.argv[2]
 
     coloring = [ int(c) for c in coloring ]
+    coloring = protected_coloring(coloring, blueteam, redteam)
 
     valids = hash_solver(board)
 
