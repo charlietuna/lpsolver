@@ -142,6 +142,18 @@ def strcoloring(coloring):
     return "".join([ str(n) for n in coloring ])
 
 
+def score_valids(bhash, valids):
+    scores = {}
+    moves = {}
+    colorings = {}
+
+    for valid in valids:
+        scores[valid], moves[valid], colorings[valid] = scorer(bhash, valid, coloring, blueteam, redteam)
+
+    highest_valids = sorted(valids, cmp=lambda x, y: cmp(scores[y], scores[x]))
+
+    return scores, moves, colorings, highest_valids
+
 if __name__ == "__main__":
     import sys
     board = sys.argv[1]
@@ -155,32 +167,14 @@ if __name__ == "__main__":
     for b, i in zip(board, range(len(board))):
         bhash[b] = bhash.get(b, []) + [i]
 
-    scores = {}
-    moves = {}
-    colorings = {}
-    for valid in valids:
-        scores[valid], moves[valid], colorings[valid] = scorer(bhash, valid, coloring, blueteam, redteam)
-
-    highest_valids = sorted(valids, cmp=lambda x, y: cmp(scores[y], scores[x]))
+    scores, moves, colorings, highest_valids = score_valids(bhash, valids)
 
     for valid in highest_valids[:10]:
         print valid, scores[valid], prettymove(moves[valid]), strcoloring(colorings[valid])
 
-        nextscores = {}
-        nextmoves = {}
-        nextcolorings = {}
-
         nextvalids = [ v for v in valids if v != valid ]
 
-        for nextvalid in nextvalids:
-            nextscores[nextvalid], nextmoves[nextvalid], nextcolorings[nextvalid] = scorer(bhash, nextvalid, coloring, redteam, blueteam)
-
-        highest_nextvalids = sorted(nextvalids, cmp=lambda x, y: cmp(nextscores[y], nextscores[x]))
+        nextscores, nextmoves, nextcolorings, highest_nextvalids = score_valids(bhash, nextvalids)
 
         highvalid = highest_nextvalids[0]
         print "\t", highvalid, scores[highvalid], prettymove(moves[highvalid]), strcoloring(colorings[highvalid])
-
-
-
-
-
